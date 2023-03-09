@@ -42,7 +42,13 @@ class Task:
             self._name = name
             self._id: int = Task.tasks
             self._total_days = total_days
+            #self._s_date = s_date
             status_date = Task.valid_date(self, s_date)
+            if status_date == 1:
+                self._valid = True
+            else:
+                self._s_date = "undefined"
+                self._valid = False
             Task.asign_date(self, s_date, status_date)
             
 
@@ -82,7 +88,7 @@ class Task:
         status = Task.valid_date(self, s_date) 
         Task.asign_date(self, s_date, status)
 
-    def show(self) -> dict[str, int, datetime]:
+    def show(self) -> dict[str]:
         """Función que muestra la información de la tarea en cuestión"""
         try:
             if hasattr(self, "_name") == False:
@@ -91,7 +97,7 @@ class Task:
                 raise ValueError(f' Interno, La tarea {self._name} no tiene ID asignado')
             elif hasattr(self, "_s_date") == False:
                 raise ValueError(f'La tarea {self.name} no tiene Fecha asignada, por favor asignele una')    
-            datos = { "Nombre": self._name, "ID": self._id, "Fecha Inicial": self._s_date}
+            datos = { "Nombre": self._name, "ID": self._id, "Fecha Inicial": self._s_date, "Es Valido": self._valid}
             return datos
             
         except ValueError as e:
@@ -102,7 +108,7 @@ class Task:
 
 
 
-    
+    s_date = property(get_s_date, set_s_date)
     f_date = property(get_f_date)
     name = property(get_name, set_name)
     id = property(get_id)
