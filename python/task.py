@@ -2,35 +2,6 @@ from datetime import datetime
 class Task:
     """Este es el docstring de la clase"""
     tasks = 0  
-    def valid_date(self, date: str):
-                    status: int
-                    if date is None:
-                        if self._id > 1:
-                            status = 2 #Ingrese una fecha
-                        else:
-                            status = 1 # Funciona
-                    else:
-                        try:
-                            datetime.strptime(date, '%Y-%m-%d')
-                            status = 1
-                        except ValueError:
-                            status = 0 #Ingrese fecha en formato correcto
-                    return status
-
-
-    def asign_date(self, s_date: str, status_date: int):
-        try:
-            
-            if status_date == 1:
-                self._s_date = s_date
-            elif status_date == 2:
-                raise ValueError("Ingrese una fecha")
-            elif status_date == 0:
-                raise ValueError("Ingrese una fecha en el formato correcto (YYYY-MM-DD)")
-        except ValueError as e:
-            print(f'Error: {e}, Status: {status_date} ')
-
-
     def __init__(self, name: str, total_days: int, s_date: str = None):
         """
         TODO - Completar el Objeto y revisar si es necesario un objeto "Proyecto"
@@ -88,21 +59,51 @@ class Task:
         status = Task.valid_date(self, s_date) 
         Task.asign_date(self, s_date, status)
 
-    def show(self) -> dict[str]:
-        """Función que muestra la información de la tarea en cuestión"""
-        try:
-            if hasattr(self, "_name") == False:
-                raise ValueError('La tarea no tiene Nombre asignado')
-            elif hasattr(self, "_id") == False:
-                raise ValueError(f' Interno, La tarea {self._name} no tiene ID asignado')
-            elif hasattr(self, "_s_date") == False:
-                raise ValueError(f'La tarea {self.name} no tiene Fecha asignada, por favor asignele una')    
-            datos = { "Nombre": self._name, "ID": self._id, "Fecha Inicial": self._s_date, "Es Valido": self._valid}
-            return datos
+    # def show(self) -> dict[str]:
+    #     """Función que muestra la información de la tarea en cuestión"""
+    #     try:
+    #         if hasattr(self, "_name") == False:
+    #             raise ValueError('La tarea no tiene Nombre asignado')
+    #         elif hasattr(self, "_id") == False:
+    #             raise ValueError(f' Interno, La tarea {self._name} no tiene ID asignado')
+    #         elif hasattr(self, "_s_date") == False:
+    #             raise ValueError(f'La tarea {self.name} no tiene Fecha asignada, por favor asignele una')    
+    #         datos = { "Nombre": self._name, "ID": self._id, "Fecha Inicial": self._s_date, "Es Valido": self._valid}
+    #         return datos
             
-        except ValueError as e:
-            print(f'Error: {e}')
+    #     except ValueError as e:
+    #         print(f'Error: {e}')
 
+    def __str__(self) -> str:
+        return f'ID: {self.get_id()}\nNAME:{self.get_name()}\nTotal Days:{self.get_total_days()}'
+
+    def valid_date(self, date: str):
+                    status: int
+                    if date is None:
+                        if self._id > 1:
+                            status = 2 #Ingrese una fecha
+                        else:
+                            status = 1 # Funciona
+                    else:
+                        try:
+                            datetime.strptime(date, '%Y-%m-%d')
+                            status = 1
+                        except ValueError:
+                            status = 0 #Ingrese fecha en formato correcto
+                    return status
+
+
+    def asign_date(self, s_date: str, status_date: int):
+        try:
+            
+            if status_date == 1:
+                self._s_date = s_date
+            elif status_date == 2:
+                raise ValueError("Ingrese una fecha")
+            elif status_date == 0:
+                raise ValueError("Ingrese una fecha en el formato correcto (YYYY-MM-DD)")
+        except ValueError as e:
+            print(f'Error: {e}, Status: {status_date} ')
 
 
 
