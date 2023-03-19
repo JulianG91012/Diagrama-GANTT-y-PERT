@@ -9,7 +9,9 @@ def run():
     gestionProyectos = Project("Plantillas Gubernamentales de Calidad")
 
     print(arqSoftware)
-    print(tomar_requisitos.get_total_days())
+    print()
+    print(gestionProyectos)
+    #print(tomar_requisitos.get_total_days())
 
 
 if __name__ == "__main__":

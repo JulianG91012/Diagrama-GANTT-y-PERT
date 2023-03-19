@@ -1,4 +1,5 @@
 from task import Task
+import re
 class Project:
     """Objeto Proyecto, almacena las tareas que le competen con sus respectivos datos"""
     id_project: int = 0
@@ -10,14 +11,19 @@ class Project:
             self._id = Project.id_project
             Project.id_project += 1
 
-            self.set_name(name)
+            self._arr_status = []
+
+            self._name = name
+            
             self._arr_task = arr_task
 
             if arr_task[0].get_name() != "Inicio":
                 self._arr_task.insert(0, Project.inicio)
             
             self._quant_task = len(self._arr_task)
+            self.validate_name(self._name)
             self.validate_tasks()
+            self.validate_status()
 
 
         except ValueError as e:
@@ -35,9 +41,26 @@ class Project:
 
     def set_name(self, name):
         """Cambia el nombre del Proyecto"""
-        if type(name) != str:
-            raise ValueError("Ingrese un nombre válido")
+        if self.validate_name(name) == False:
+            self._arr_status.append(False)
         self._name = name
+
+
+    def validate_name(self, name):
+        """Valida que el nombre del proyecto esté correcto"""
+        min_length = 2
+        max_length = 40
+        regex_pattern =  "^[a-zA-Z0-9 ]+$"
+        name_status: bool
+        regex = re.compile(regex_pattern)
+        if (len(name) < min_length) or (len(name) > max_length) or not regex.match(name):
+            name_status = False
+            self._arr_status.append(name_status)  
+        else:
+            name_status = True
+            self._arr_status.append(name_status)  
+        
+        return name_status
 
 
     def get_tasks(self):
@@ -65,9 +88,9 @@ class Project:
         return self._quant_task
 
 
-    def get_status(self):
+    def get_status(self) -> bool:
         """Devuelve el estado (Correcto o Erróneo) de las tareas que tenga el Proyecto"""
-        pass
+        return self._status
 
 
     def validate_tasks(self):
@@ -75,18 +98,28 @@ class Project:
         initial_task = self._arr_task[0].get_name()
         if self.get_quant_tasks == 1:
             self._status = False
-        elif initial_task != "Inicio":
-            self._status = False
+        # elif initial_task != "Inicio":
+        #     self._status = False
         else:
-            self._status = True
+            task_status = True
+            self._arr_status.append(task_status)
         return 0
     
+
+    def validate_status(self):
+        """Valida que todos los componentes del proyecto sean correctos"""
+        tmp = True
+        for status in self._arr_status:
+            tmp = tmp and status
+        self._status = tmp
+        return 0
+
     def __str__(self):
         """Devuelve el Proyecto en formato String"""
         arr_tasks = []
         for task in self.get_tasks():
             arr_tasks.append(task.get_name()) #Por revisar si sólo se quiere el nombre al representar el objeto
-        return f"ID Proyecto: {self.get_id()}\nNombre: {self.get_name()}\nCantidad de Tareas: {self.get_quant_tasks()} \nTareas: {arr_tasks}"
+        return f"ID Proyecto: {self.get_id()}\nNombre: {self.get_name()}\nCantidad de Tareas: {self.get_quant_tasks()} \nTareas: {arr_tasks}\nEstado del proyecto: {self.get_status()}"
 
 
     def graphGantt(self):
