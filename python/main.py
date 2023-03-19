@@ -10,7 +10,11 @@ def run():
 
     print(arqSoftware)
     print()
+    print(arqSoftware.getCompStatus("Tareas"))
+    print()
     print(gestionProyectos)
+    print()
+    print(gestionProyectos.getCompStatus("Tareas"))
     #print(tomar_requisitos.get_total_days())
 
 

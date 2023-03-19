@@ -11,7 +11,7 @@ class Project:
             self._id = Project.id_project
             Project.id_project += 1
 
-            self._arr_status = []
+            self._dict_status = dict()
 
             self._name = name
             
@@ -21,13 +21,14 @@ class Project:
                 self._arr_task.insert(0, Project.inicio)
             
             self._quant_task = len(self._arr_task)
-            self.validate_name(self._name)
-            self.validate_tasks()
-            self.validate_status()
+            self.validateName(self._name)
+            self.validateTasks()
+            self.validateStatus()
 
 
         except ValueError as e:
             print(f'Error: {e}')
+
 
     def get_id(self):
         """Muestra el ID relacionado con el proyecto"""
@@ -41,12 +42,12 @@ class Project:
 
     def set_name(self, name):
         """Cambia el nombre del Proyecto"""
-        if self.validate_name(name) == False:
-            self._arr_status.append(False)
+        if self.validateName(name) == False:
+            self._dict_status["Nombre"] = False
         self._name = name
 
 
-    def validate_name(self, name):
+    def validateName(self, name):
         """Valida que el nombre del proyecto esté correcto"""
         min_length = 2
         max_length = 40
@@ -55,10 +56,10 @@ class Project:
         regex = re.compile(regex_pattern)
         if (len(name) < min_length) or (len(name) > max_length) or not regex.match(name):
             name_status = False
-            self._arr_status.append(name_status)  
+            self._dict_status["Nombre"] = name_status
         else:
             name_status = True
-            self._arr_status.append(name_status)  
+            self._dict_status["Nombre"] = name_status 
         
         return name_status
 
@@ -93,26 +94,41 @@ class Project:
         return self._status
 
 
-    def validate_tasks(self):
-        """Método que valida que exista una tarea Inicio y una final"""
-        initial_task = self._arr_task[0].get_name()
-        if self.get_quant_tasks == 1:
-            self._status = False
-        # elif initial_task != "Inicio":
-        #     self._status = False
+    def validateTasks(self):
+        """Método que valida que exista una tarea Inicio y una final
+        TODO Hacer que valide tarea por tarea"""
+        if self.get_quant_tasks() == 1:
+            task_status = False
+            self._dict_status["Tareas"] = task_status
         else:
             task_status = True
-            self._arr_status.append(task_status)
+            self._dict_status["Tareas"] = task_status
         return 0
     
 
-    def validate_status(self):
+    def validateStatus(self):
         """Valida que todos los componentes del proyecto sean correctos"""
-        tmp = True
-        for status in self._arr_status:
-            tmp = tmp and status
+        # tmp = True
+        # for status in self._dict_status.values():
+        #     tmp = tmp and status
+        tmp = all(self._dict_status.values()) #Hace lo mismo que el for
         self._status = tmp
         return 0
+
+
+    def getCompStatus(self, component:str):
+        """Devuelve el estado (Correcto o Incorrecto) de la componente del proyecto solicitada
+        Opciones:
+        - Nombre -> Devuelve el estado del Nombre dado
+        - Tareas -> Devuelve el estado de la tarea especificada"""
+        try:
+            if component not in self._dict_status:
+                raise ValueError("Ingrese el nombre correcto de una componente")
+            else:
+                return self._dict_status[component]
+        except ValueError as e:
+            print(e)
+
 
     def __str__(self):
         """Devuelve el Proyecto en formato String"""
@@ -138,3 +154,4 @@ class Project:
     tasks = property(get_tasks, set_task, remove_task)
     quant_task = property(get_quant_tasks)
     status = property(get_status)
+    comp_status = property(getCompStatus)
