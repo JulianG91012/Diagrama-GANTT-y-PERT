@@ -1,27 +1,31 @@
 from task import Task
 import re
 class Project:
-    """Objeto Proyecto, almacena las tareas que le competen con sus respectivos datos"""
+    """Clase que representa a un proyecto con sus respectivas tareas y datos.
+    
+    Atributos:
+        id_project (int): Identificador único del proyecto.
+        inicio (task): Tarea de inicio de un proyecto, es el valor por defecto en caso de no incluirse ninguna.
+    """
     id_project: int = 0
     inicio = Task("Inicio", 0)
 
     def __init__(self, name, arr_task: list = [inicio], ):
-        """Inicializa un Objeto Proyecto"""
+        """Inicializa un Objeto Proyecto
+        """
         try:
             self._id = Project.id_project
             Project.id_project += 1
 
             self._dict_status = dict()
-
-            self._name = name
-            
+            self._name = self.set_name(name)
             self._arr_task = arr_task
 
             if arr_task[0].get_name() != "Inicio":
                 self._arr_task.insert(0, Project.inicio)
             
             self._quant_task = len(self._arr_task)
-            self.validateName(self._name)
+            
             self.validateTasks()
             self.validateStatus()
 
@@ -42,9 +46,12 @@ class Project:
 
     def set_name(self, name):
         """Cambia el nombre del Proyecto"""
-        if self.validateName(name) == False:
+        if name == self._name:
+            return "El nombre no ha cambiado"
+        elif self.validateName(name) == False:
             self._dict_status["Nombre"] = False
         self._name = name
+        return None
 
 
     def validateName(self, name):
@@ -66,12 +73,17 @@ class Project:
 
     def get_tasks(self):
         """Muestra la cantidad de tareas que tenga el proyecto"""
-        return self._arr_task
+        dic_tasks = dict()
+        for task in self._arr_task:
+            dic_tasks[task.get_name()] = {"ID": task.get_id(), "Duración": task.get_total_days(), "Fecha Inicio": task.get_s_date()}
+        return dic_tasks
 
-    
-    def set_task(self, task: Task):
-        """Agrega una tarea al proyecto"""
-        pass
+
+    def set_task(self, task: Task, order = None):
+        """Agrega una tarea al proyecto
+        TODO - Validar el status de la tarea, en caso de ser erróneo especificarlo en el dict_status y en el estado de la tarea específica"""
+        if task.get_status() == False:
+            pass 
 
 
     def remove_task(self, task: Task):
@@ -103,8 +115,8 @@ class Project:
         else:
             task_status = True
             self._dict_status["Tareas"] = task_status
-        return 0
-    
+        return None
+
 
     def validateStatus(self):
         """Valida que todos los componentes del proyecto sean correctos"""
@@ -113,7 +125,7 @@ class Project:
         #     tmp = tmp and status
         tmp = all(self._dict_status.values()) #Hace lo mismo que el for
         self._status = tmp
-        return 0
+        return None
 
 
     def getCompStatus(self, component:str):
@@ -132,10 +144,7 @@ class Project:
 
     def __str__(self):
         """Devuelve el Proyecto en formato String"""
-        arr_tasks = []
-        for task in self.get_tasks():
-            arr_tasks.append(task.get_name()) #Por revisar si sólo se quiere el nombre al representar el objeto
-        return f"ID Proyecto: {self.get_id()}\nNombre: {self.get_name()}\nCantidad de Tareas: {self.get_quant_tasks()} \nTareas: {arr_tasks}\nEstado del proyecto: {self.get_status()}"
+        return f"ID Proyecto: {self.get_id()}\nNombre: {self.get_name()}\nCantidad de Tareas: {self.get_quant_tasks()} \nTareas: {self.get_tasks()}\nEstado del proyecto: {self.get_status()}"
 
 
     def graphGantt(self):
