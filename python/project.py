@@ -18,7 +18,7 @@ class Project:
             Project.id_project += 1
 
             self._dict_status = dict()
-            self._name = self.set_name(name)
+            self._name = name
             self._arr_task = arr_task
 
             if arr_task[0].get_name() != "Inicio":
@@ -26,6 +26,7 @@ class Project:
             
             self._quant_task = len(self._arr_task)
             
+            self.validateName(name)
             self.validateTasks()
             self.validateStatus()
 
@@ -48,8 +49,9 @@ class Project:
         """Cambia el nombre del Proyecto"""
         if name == self._name:
             return "El nombre no ha cambiado"
-        elif self.validateName(name) == False:
-            self._dict_status["Nombre"] = False
+        self.validateName(name)
+        # elif self.validateName(name) == False:
+            # self._dict_status["Nombre"] = False
         self._name = name
         return None
 
@@ -68,7 +70,7 @@ class Project:
             name_status = True
             self._dict_status["Nombre"] = name_status 
         
-        return name_status
+        return None
 
 
     def get_tasks(self):
@@ -101,7 +103,7 @@ class Project:
         return self._quant_task
 
 
-    def get_status(self) -> bool:
+    def get_status(self) -> bool: #TODO: Verificar que si sea necesario
         """Devuelve el estado (Correcto o Erróneo) de las tareas que tenga el Proyecto"""
         return self._status
 
@@ -128,7 +130,7 @@ class Project:
         return None
 
 
-    def getCompStatus(self, component:str):
+    def getCompStatus(self, component:str) -> dict:
         """Devuelve el estado (Correcto o Incorrecto) de la componente del proyecto solicitada
         Opciones:
         - Nombre -> Devuelve el estado del Nombre dado
@@ -162,5 +164,5 @@ class Project:
     name = property(get_name, set_name)
     tasks = property(get_tasks, set_task, remove_task)
     quant_task = property(get_quant_tasks)
-    status = property(get_status)
+    status = property(get_status) #TODO : verificar que esto si haga algo
     comp_status = property(getCompStatus)
