@@ -78,7 +78,7 @@ class Project:
         """Muestra la cantidad de tareas que tenga el proyecto"""
         dic_tasks = dict()
         for task in self._arr_task:
-            dic_tasks[task.get_name()] = {"ID": task.get_id(), "Duración": task.get_total_days(), "Fecha Inicio": task.get_s_date(), "Fecha Final" : task.get_f_date()}
+            dic_tasks[task.get_name()] = {"ID": task.get_id(), "Tag": task.get_tag() ,"Duración": task.get_total_days(), "Fecha Inicio": task.get_s_date(), "Fecha Final" : task.get_f_date()}
         return dic_tasks
 
 

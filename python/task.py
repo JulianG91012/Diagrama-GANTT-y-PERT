@@ -31,17 +31,10 @@ class Task:
             self.validateSDate(s_date)
             self.validateFDate(self._f_date)
             self.validateStatus()
-            
-            # status_date = self.valid_date(self, s_date)
-            # if status_date == 1:
-            #     self._valid = True
-            # else:
-            #     self._s_date = "undefined"
-            #     self._valid = False
-            #self.asign_date(self, s_date, status_date)
-            
-
-            #self._f_date = total_days + total_days
+            # print("Al crear el metodo:")
+            # print(self.get_s_date())
+            # print(self.get_f_date())
+            # print()
 
         except ValueError as e:
             print(f'Error: {e}')
@@ -151,7 +144,7 @@ class Task:
 
     def set_s_date(self, new_s_date: str):
         if self._s_date == new_s_date:
-                return "La fecha de inicio no ha cambiado"
+            return "La fecha de inicio no ha cambiado"
         self.validateSDate(new_s_date)
         self._s_date = new_s_date
         return None
@@ -192,8 +185,12 @@ class Task:
         if self._s_date is not None and self._total_days is not None:
             s_date = datetime.strptime(self._s_date, '%Y-%m-%d')
             f_date = s_date + timedelta(days=self._total_days)
-            self._f_date = f_date.strftime('%Y-%m-%d') 
-            print(self._f_date)
+            # self.set_f_date(f_date.strftime('%Y-%m-%d'))
+            self._f_date = f_date.strftime('%Y-%m-%d')
+            # print("Al calcular el valor:")
+            # print(f'Fecha inicio: {self.get_s_date()}')
+            # print(self.get_f_date())
+            # print()
         else:
             return None
 
@@ -209,7 +206,7 @@ class Task:
                 elif date is not None:
                     datetime.strptime(date, '%Y-%m-%d')
                     s_date_status = True
-                self._s_date = date
+                self._f_date = date
                 self._dict_status["Fecha Final"] = s_date_status
                 return None
 
@@ -232,7 +229,7 @@ class Task:
 
 
     def __str__(self) -> str:
-        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nDuracion:{self.get_total_days()}\nDia de inicio: {self.get_s_date()}\nFecha Final: {self.get_f_date()} \nEstado de la tarea:{self.validateStatus()}'
+        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nDuracion:{self.get_total_days()}\nFecha Inicio: {self.get_s_date()}\nFecha Final: {self.get_f_date()} \nEstado de la tarea:{self.validateStatus()}'
 
 
     def validateStatus(self):
