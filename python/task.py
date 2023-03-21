@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timedelta
 import re
 class Task:
     """Este es el docstring de la clase"""
@@ -7,6 +8,7 @@ class Task:
     def __init__(self, name: str, total_days: int = None, s_date: str = None):
         """
         TODO - Definir si habrá un método para obtener los datos desde excel o se hace desde el main
+        TODO: Definir si es necesario un método "UpdateStatus" para actualizar el estado (Correcto o Falso) al actualizar un atributo
         """
         try:
             self._id: int = Task._id_task
@@ -20,13 +22,15 @@ class Task:
 
             self._total_days = total_days
             self._s_date = s_date 
-            # self._f_date = s_date + self.total_days #TODO : Revisar que funcione
             self._f_date = None
+            self.calculate_f_date()
             
-            self.validateStatus()
             self.validateName(name)
             self.validateTag(self._tag)
             self.validateTDays(total_days)
+            self.validateSDate(s_date)
+            self.validateFDate(self._f_date)
+            self.validateStatus()
             
             # status_date = self.valid_date(self, s_date)
             # if status_date == 1:
@@ -113,12 +117,12 @@ class Task:
         return self._total_days
 
 
-    def set_total_days(self, total_days: int):
+    def set_total_days(self, new_total_days: int):
         """Asigna el valor especificado a la duración de la tarea"""
-        if self._total_days == total_days:
+        if self._total_days == new_total_days:
             return "El valor del Tag no ha cambiado"
-        self.validateTDays(total_days)
-        self._total_days = total_days
+        self.validateTDays(new_total_days)
+        self._total_days = new_total_days
         return None
 
 
@@ -129,7 +133,7 @@ class Task:
             t_days_msg = "La duración debe ser un número entero"
             self._dict_status["Duracion"] = t_days_status
 
-        elif self.get_name() != "Inicio" and total_days < 0:
+        elif self.get_name() != "Inicio" and total_days <= 0:
             t_days_msg = "La duración no puede ser cero"
             self._dict_status["Duracion"] = t_days_status
 
@@ -145,77 +149,90 @@ class Task:
         return self._s_date
 
 
-    def set_s_date(self, s_date: str):
-        status = Task.valid_date(self, s_date) 
-        Task.asign_date(self, s_date, status)
+    def set_s_date(self, new_s_date: str):
+        if self._s_date == new_s_date:
+                return "La fecha de inicio no ha cambiado"
+        self.validateSDate(new_s_date)
+        self._s_date = new_s_date
+        return None
+
+
+    def validateSDate(self, date):
+        try:
+            s_date_status: bool
+            if date is None and self.get_name() != "Inicio":
+                s_date_status = False
+            elif date is None and self.get_name() == "Inicio":
+                s_date_status = True
+            elif date is not None:
+                datetime.strptime(date, '%Y-%m-%d')
+                s_date_status = True
+            self._dict_status["Fecha Inicio"] = s_date_status
+            self._s_date = date
+            return None
+
+        except ValueError:
+            self._dict_status["Fecha Inicio"] = False
 
 
     def get_f_date(self):
         return self._f_date
 
 
-    def set_f_date(self):
-        pass
+    def set_f_date(self, new_f_date: str):
+        if self.f_date and self.f_date == new_f_date:
+            return "La fecha ingresada es la misma"
+        self.validateFDate(new_f_date)
+        self._f_date = new_f_date
+        return None
+
+
+    def calculate_f_date(self):
+        """Calcula la fecha final a partir de la fecha inicial y la duración"""
+        if self._s_date is not None and self._total_days is not None:
+            s_date = datetime.strptime(self._s_date, '%Y-%m-%d')
+            f_date = s_date + timedelta(days=self._total_days)
+            self._f_date = f_date.strftime('%Y-%m-%d') 
+            print(self._f_date)
+        else:
+            return None
+
+
+    def validateFDate(self, date):
+            try:
+                s_date_status: bool
+                if date is None and self.get_name() != "Inicio":
+                    s_date_status = False
+                #Validar caso de que la tarea sea "Inicio" y no tenga fecha inicial
+                elif date is None and self.get_name() == "Inicio" and self.get_s_date() == None:
+                    s_date_status = True
+                elif date is not None:
+                    datetime.strptime(date, '%Y-%m-%d')
+                    s_date_status = True
+                self._s_date = date
+                self._dict_status["Fecha Final"] = s_date_status
+                return None
+
+            except ValueError:
+                self._dict_status["Fecha Final"] = False
 
 
     def get_status(self):
-        pass
+        return self._status
 
 
     def get_atrr_status(self, attr:str):
-        pass
+        try:
+            if attr not in self._dict_status and attr not in ["Nombre", "Duracion", "Fecha Inicio", "Fecha Final", "Status"]:
+                raise ValueError("Ingrese el nombre correcto de un atributo")
+            else:
+                return self._dict_status[attr]
+        except ValueError as e:
+            print(e)
 
-
-    # def show(self) -> dict[str]:
-    #     """Función que muestra la información de la tarea en cuestión"""
-    #     try:
-    #         if hasattr(self, "_name") == False:
-    #             raise ValueError('La tarea no tiene Nombre asignado')
-    #         elif hasattr(self, "_id") == False:
-    #             raise ValueError(f' Interno, La tarea {self._name} no tiene ID asignado')
-    #         elif hasattr(self, "_s_date") == False:
-    #             raise ValueError(f'La tarea {self.name} no tiene Fecha asignada, por favor asignele una')    
-    #         datos = { "Nombre": self._name, "ID": self._id, "Fecha Inicial": self._s_date, "Es Valido": self._valid}
-    #         return datos
-            
-    #     except ValueError as e:
-    #         print(f'Error: {e}')
 
     def __str__(self) -> str:
-        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nDuracion:{self.get_total_days()}\nDia de inicio: {self.get_s_date()}\nDia fin:{self.get_f_date()}\nEstado de la tarea:{self.validateStatus()}'
-
-    # def valid_date(self, date: str):
-    #     status: int
-    #     if date is None:
-    #         if self._id > 1:
-    #             status = 2 #Ingrese una fecha
-    #         else:
-    #             status = 1 # Funciona
-    #     else:
-    #         try:
-    #             datetime.strptime(date, '%Y-%m-%d')
-    #             status = 1
-    #         except ValueError:
-    #             status = 0 #Ingrese fecha en formato correcto
-    #     return status
-
-
-    # def asign_date(self, s_date: str, status_date: int):
-    #     try:
-            
-    #         if status_date == 1:
-    #             self._s_date = s_date
-    #         elif status_date == 2:
-    #             raise ValueError("Ingrese una fecha")
-    #         elif status_date == 0:
-    #             raise ValueError("Ingrese una fecha en el formato correcto (YYYY-MM-DD)")
-    #     except ValueError as e:
-    #         print(f'Error: {e}, Status: {status_date} ')
-
-
-
-    def validateDates(self):
-        pass
+        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nDuracion:{self.get_total_days()}\nDia de inicio: {self.get_s_date()}\nFecha Final: {self.get_f_date()} \nEstado de la tarea:{self.validateStatus()}'
 
 
     def validateStatus(self):

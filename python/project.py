@@ -6,6 +6,7 @@ class Project:
     Atributos:
         id_project (int): Identificador único del proyecto.
         inicio (task): Tarea de inicio de un proyecto, es el valor por defecto en caso de no incluirse ninguna.
+    TODO: Definir si es necesario un método "UpdateStatus" para actualizar el estado (Correcto o Falso) al actualizar un atributo
     """
     id_project: int = 0
     inicio = Task("Inicio", 0)
@@ -77,7 +78,7 @@ class Project:
         """Muestra la cantidad de tareas que tenga el proyecto"""
         dic_tasks = dict()
         for task in self._arr_task:
-            dic_tasks[task.get_name()] = {"ID": task.get_id(), "Duración": task.get_total_days(), "Fecha Inicio": task.get_s_date()}
+            dic_tasks[task.get_name()] = {"ID": task.get_id(), "Duración": task.get_total_days(), "Fecha Inicio": task.get_s_date(), "Fecha Final" : task.get_f_date()}
         return dic_tasks
 
 
@@ -111,37 +112,81 @@ class Project:
     def validateTasks(self):
         """Método que valida que exista una tarea Inicio y una final
         TODO Hacer que valide tarea por tarea"""
-        if self.get_quant_tasks() == 1:
+        task_status:bool
+        self._dict_status["Tareas"] = {}
+        dict_tmp = {}
+        #Caso de que hay una o menos tareas en el Proyecto
+        if self.get_quant_tasks() <= 1:
             task_status = False
             self._dict_status["Tareas"] = task_status
+            return "Solo hay una tarea en el proyecto"
+        #En caso de que haya más de una, empiezo a recorrer cada tarea
         else:
-            task_status = True
-            self._dict_status["Tareas"] = task_status
+            for task in self._arr_task:
+                #Si hay más de una tarea, se valida el estado una por una
+                if task.status == False:
+                    task_status = False
+                    dict_tmp.update({task.name:task_status})
+                else:
+                    task_status = True
+                    dict_tmp.update({task.name:task.status})
+            self._dict_status["Tareas"] |= dict_tmp
         return None
 
 
     def validateStatus(self):
         """Valida que todos los componentes del proyecto sean correctos"""
-        # tmp = True
-        # for status in self._dict_status.values():
-        #     tmp = tmp and status
-        tmp = all(self._dict_status.values()) #Hace lo mismo que el for
+        tmp = all(self._dict_status.values()) # Valida todos los elementos del dict
+        for task in self._arr_task:
+            # Si una tarea no está completa, entonces todo el proyecto está incompleto
+            if not task.status:
+                tmp = False
+                break
         self._status = tmp
         return None
 
 
-    def getCompStatus(self, component:str) -> dict:
+    def getCompStatus(self, component: str) -> dict:
         """Devuelve el estado (Correcto o Incorrecto) de la componente del proyecto solicitada
         Opciones:
         - Nombre -> Devuelve el estado del Nombre dado
-        - Tareas -> Devuelve el estado de la tarea especificada"""
+        - Tareas -> Devuelve el estado de todas las tareas
+        TODO: Añadir funcion de escribir el nombre de una tarea y devolver solo el estado de esta"""
         try:
-            if component not in self._dict_status:
+            if component not in self._dict_status and component != "Tareas":
                 raise ValueError("Ingrese el nombre correcto de una componente")
             else:
-                return self._dict_status[component]
+                if component == "Tareas":
+                    tasks = {}
+                    for task in self._arr_task:
+                        tasks[task.get_name()] = task.status
+                    return tasks
+                elif component in [task.get_name() for task in self._arr_task]:
+                    for task in self._arr_task:
+                        if task.get_name() == component:
+                            return task.status
+                else:
+                    return self._dict_status[component]
         except ValueError as e:
             print(e)
+
+
+    # def getCompStatus(self, component:str) -> dict:
+    #     """Devuelve el estado (Correcto o Incorrecto) de la componente del proyecto solicitada
+    #     Opciones:
+    #     - Nombre -> Devuelve el estado del Nombre dado
+    #     - Tareas -> Devuelve el estado de la tarea especificada"""
+    #     try:
+    #         if component == "Tareas":
+    #             return {task.name: task.status for task in self._arr_task}
+    #         elif component not in self._dict_status:
+    #             raise ValueError("Ingrese el nombre correcto de una componente")
+    #         else:
+    #             return self._dict_status[component]
+    #     except ValueError as e:
+    #         print(e)
+
+
 
 
     def __str__(self):
