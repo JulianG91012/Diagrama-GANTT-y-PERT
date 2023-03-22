@@ -8,7 +8,7 @@ class Task:
     def __init__(self, name: str, total_days: int = None, s_date: str = None):
         """
         TODO - Definir si habrá un método para obtener los datos desde excel o se hace desde el main
-        TODO: Definir si es necesario un método "UpdateStatus" para actualizar el estado (Correcto o Falso) al actualizar un atributo
+        TODO - Si le ingreso más argumentos -> Me saque un mensaje de error en vez de la excepción
         """
         try:
             self._id: int = Task._id_task
@@ -24,13 +24,8 @@ class Task:
             self._s_date = s_date 
             self._f_date = None
             self.calculate_f_date()
+            self._updateStatus()
             
-            self.validateName(name)
-            self.validateTag(self._tag)
-            self.validateTDays(total_days)
-            self.validateSDate(s_date)
-            self.validateFDate(self._f_date)
-            self.validateStatus()
             # print("Al crear el metodo:")
             # print(self.get_s_date())
             # print(self.get_f_date())
@@ -56,13 +51,14 @@ class Task:
             return "El nombre no ha cambiado"
         # elif self.validateName(name) == False:
         #     self._dict_status["Nombre"] = False
-        self.validateName(name)
         self._name = name
+        self._updateStatus("Name")
         return None
 
 
     def validateName(self, name):
-        """Valida que el nombre de la tarea esté correcto"""
+        """Valida que el nombre de la tarea esté correcto
+        TODO: Validar que pasa si no pongo nombre -> No sacar la excepción sino dar un task_status = False"""
         min_length = 2
         max_length = 50 #TODO: Revisar la cantidad limite permitida y si es necesario un atributo "Descripción"
         regex_pattern =  "^[a-zA-Z0-9 ]+$"
@@ -87,13 +83,14 @@ class Task:
         """Le agrega el Tag especificado a la tarea"""
         if self._tag == new_tag:
             return "El valor del Tag no ha cambiado"
-        self.validateTag(new_tag)
         self._tag = new_tag
+        self._updateStatus("Tag")
         return None
 
 
     def validateTag(self, tag):
-        """Valida que el Tag que tenga la tarea sea correcto, agrega este valor al estado general de la tarea"""
+        """Valida que el Tag que tenga la tarea sea correcto, agrega este valor al estado general de la tarea
+        TODO: Validar que pasa cuando se llega a 'Z'"""
         tag_status: bool
         if len(tag) != 1 or not tag.isalpha() or not tag.isupper():
             tag_status = False
@@ -114,12 +111,13 @@ class Task:
         """Asigna el valor especificado a la duración de la tarea"""
         if self._total_days == new_total_days:
             return "El valor del Tag no ha cambiado"
-        self.validateTDays(new_total_days)
         self._total_days = new_total_days
+        self._updateStatus("Total Days")
         return None
 
 
     def validateTDays(self, total_days):
+        """TODO: Validar que no sean muchos dias :D (Averiguar cuánto debería durar un proyecto y establecer un límite con eso)"""
         t_days_msg = ""
         t_days_status:bool = False
         if not isinstance(total_days, int) and self.get_name() != "Inicio":
@@ -145,12 +143,15 @@ class Task:
     def set_s_date(self, new_s_date: str):
         if self._s_date == new_s_date:
             return "La fecha de inicio no ha cambiado"
-        self.validateSDate(new_s_date)
         self._s_date = new_s_date
+        self._updateStatus("Starter Date")
         return None
 
 
     def validateSDate(self, date):
+        """TODO: Validar que si existe el atributo duración, se agregue fecha de inicio -> True, sino False
+        TODO: Validar que cuando la tarea sea 'Inicio' tenga un formato de fecha correcto -> status: False
+        TODO: Establecer un límite de 'Fecha de Inicio' como 1950"""
         try:
             s_date_status: bool
             if date is None and self.get_name() != "Inicio":
@@ -175,8 +176,8 @@ class Task:
     def set_f_date(self, new_f_date: str):
         if self.f_date and self.f_date == new_f_date:
             return "La fecha ingresada es la misma"
-        self.validateFDate(new_f_date)
         self._f_date = new_f_date
+        self._updateStatus("Final Date")
         return None
 
 
@@ -219,6 +220,7 @@ class Task:
 
 
     def get_atrr_status(self, attr:str):
+        """TODO: Si no se ingresa el nombre de un atributo -> None -> Se muestra el estado de todos."""
         try:
             if attr not in self._dict_status and attr not in ["Nombre", "Duracion", "Fecha Inicio", "Fecha Final", "Status"]:
                 raise ValueError("Ingrese el nombre correcto de un atributo")
@@ -229,7 +231,7 @@ class Task:
 
 
     def __str__(self) -> str:
-        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nDuracion:{self.get_total_days()}\nFecha Inicio: {self.get_s_date()}\nFecha Final: {self.get_f_date()} \nEstado de la tarea:{self.validateStatus()}'
+        return f'\nID: {self.get_id()}\nNombre:{self.get_name()}\nTag: {self.get_tag()}\nDuracion:{self.get_total_days()}\nFecha Inicio: {self.get_s_date()}\nFecha Final: {self.get_f_date()} \nEstado de la tarea:{self.validateStatus()}'
 
 
     def validateStatus(self):
@@ -240,6 +242,26 @@ class Task:
         tmp = all(self._dict_status.values()) #Hace lo mismo que el for
         self._status = tmp
         return self._status
+    
+
+    def _updateStatus(self, comp: str = None):
+        if comp == "Name":
+            self.validateName(self.get_name())
+        elif comp == "Tag":
+            self.validateTag(self.get_tag())
+        elif comp == "Total Days":
+            self.validateTDays(self.get_total_days())
+        elif comp == "Starter Date":
+            self.validateSDate(self.get_s_date())
+        elif comp == "Final Date":
+            self.validateFDate(self.get_f_date())
+        elif comp == None:
+            self.validateName(self.get_name())
+            self.validateTag(self.get_tag())
+            self.validateTDays(self.get_total_days())
+            self.validateSDate(self.get_s_date())
+            self.validateFDate(self.get_f_date())
+        self.validateStatus()
 
     id = property(get_id)
     name = property(get_name, set_name)
